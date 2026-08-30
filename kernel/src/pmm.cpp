@@ -88,7 +88,7 @@ void pmm_init(limine_memmap_entry **entries, uint64_t entry_count, uint64_t hhdm
         }
     }
 
-    kprintf("[megakernel] PMM initialized.");
+    kprintf("[megakernel] PMM initialized.\n");
 }
 
 uint64_t pmm_alloc_page() {
