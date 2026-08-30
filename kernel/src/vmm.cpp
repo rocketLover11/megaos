@@ -33,7 +33,7 @@ static uint64_t *get_or_create_table(uint64_t *parent_table, uint64_t index, boo
 
     uint64_t new_table_phys = pmm_alloc_page();
     if (new_table_phys == 0) {
-        kprintf("[megakernel] out of memory allocating page table\n");
+        kprintf("[megakernel] Out of memory allocating page table!\n");
         for (;;) asm("hlt");
     }
 
@@ -90,7 +90,7 @@ void vmm_init(uint64_t hhdm_offset, limine_memmap_entry **entries, uint64_t entr
 
     asm volatile ("mov %0, %%cr3" : : "r"(kernel_pml4_phys) : "memory");
 
-    kprintf("[megakernel] VMM initialized, new PML4 at %p, CR3 switched\n", (void *)kernel_pml4_phys);
+    kprintf("[megakernel] VMM initialized, new PML4 at %p, CR3 switched.\n", (void *)kernel_pml4_phys);
 }
 
 void vmm_map(uint64_t virt, uint64_t phys, uint64_t flags) {

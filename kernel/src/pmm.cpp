@@ -53,7 +53,7 @@ void pmm_init(limine_memmap_entry **entries, uint64_t entry_count, uint64_t hhdm
     }
 
     if (!bitmap) {
-        kprintf("[megakernel] no usable region big enough for bitmap\n");
+        kprintf("[megakernel] No usable region big enough for bitmap!\n");
         for (;;) asm("hlt");
     }
 
@@ -88,7 +88,7 @@ void pmm_init(limine_memmap_entry **entries, uint64_t entry_count, uint64_t hhdm
         }
     }
 
-    kprintf("[megakernel] total_pages=%d free_pages=%d bitmap at %p (%d bytes)\n", (int)total_pages, (int)free_pages, (void *)bitmap, (int)bitmap_size_bytes);
+    kprintf("[megakernel] PMM initialized.");
 }
 
 uint64_t pmm_alloc_page() {

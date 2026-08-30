@@ -6,6 +6,7 @@
 #include "idt.h"
 #include "pmm.h"
 #include "vmm.h"
+#include "kheap.h"
 
 extern "C" {
 
@@ -122,8 +123,6 @@ extern "C" void kmain() {
 
     fb_console_init(fb->address, fb->width, fb->height, fb->pitch, fb->bpp);
 
-    kprintf("[megakernel] Kernel booted successfuly!\n");
-
     gdt_init();
     kprintf("[megakernel] GDT loaded.\n");
 
@@ -131,7 +130,7 @@ extern "C" void kmain() {
     kprintf("[megakernel] IDT loaded.\n");
 
     if (memmap_request.response == nullptr || hhdm_request.response == nullptr) {
-        kprintf("[megakernel] missing memmap or hhdm response\n");
+        kprintf("[megakernel] Missing memmap or hhdm response!\n");
         hcf();
     }
 
@@ -140,7 +139,7 @@ extern "C" void kmain() {
     extern char __kernel_end;
     vmm_init(hhdm_request.response->offset, memmap_request.response->entries, memmap_request.response->entry_count, kernel_address_request.response->physical_base, kernel_address_request.response->virtual_base, (uint64_t)&__kernel_end, (uint64_t)fb->address - hhdm_request.response->offset, fb->pitch * fb->height);
 
-    kprintf("[megakernel] CR3 switch successful.");
+    kheap_init();
 
     hcf();
 }

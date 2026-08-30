@@ -9,6 +9,7 @@ add_executable(kernel
     src/idt_load.s
     src/pmm.cpp
     src/vmm.cpp
+    src/kheap.cpp
 )
 
 set_source_files_properties(
