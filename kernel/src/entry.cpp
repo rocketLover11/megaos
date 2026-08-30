@@ -1,0 +1,76 @@
+#include <stdint.h>
+#include <stddef.h>
+
+#include "fb_console.h"
+#include "gdt.h"
+#include "idt.h"
+
+extern "C" {
+
+__attribute__((used, section(".requests")))
+static volatile struct {
+    uint64_t id[4];
+    uint64_t revision;
+    struct limine_framebuffer_response *response;
+} framebuffer_request = {
+    .id = {0xc7b1dd30df4c8b88, 0x0a82e883a194f07b, 0x9d5827dcd881dd75, 0xa3148604f6fab11b},
+    .revision = 0,
+    .response = nullptr
+};
+
+struct limine_framebuffer {
+    void *address;
+    uint64_t width;
+    uint64_t height;
+    uint64_t pitch;
+    uint16_t bpp;
+    uint8_t memory_model;
+    uint8_t red_mask_size;
+    uint8_t red_mask_shift;
+    uint8_t green_mask_size;
+    uint8_t green_mask_shift;
+    uint8_t blue_mask_size;
+    uint8_t blue_mask_shift;
+    uint8_t unused[7];
+    uint64_t edid_size;
+    void *edid;
+};
+
+struct limine_framebuffer_response {
+    uint64_t revision;
+    uint64_t framebuffer_count;
+    struct limine_framebuffer **framebuffers;
+};
+
+} // extern "C"
+
+static void hcf() {
+    for (;;) {
+        asm ("hlt");
+    }
+}
+
+extern "C" void kmain() {
+    if (framebuffer_request.response == nullptr ||
+        framebuffer_request.response->framebuffer_count < 1) {
+        hcf();
+    }
+
+    struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
+
+    if (fb->bpp != 32) {
+        hcf();
+    }
+
+    fb_console_init(fb->address, fb->width, fb->height, fb->pitch, fb->bpp);
+
+    kprintf("[megakernel] Kernel booted successfuly!\n");
+
+    gdt_init();
+    kprintf("[megakernel] GDT loaded.\n");
+
+    idt_init();
+    kprintf("[megakernel] IDT loaded.\n");
+
+    hcf();
+}
