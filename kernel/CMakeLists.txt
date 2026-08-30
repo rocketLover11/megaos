@@ -7,6 +7,8 @@ add_executable(kernel
     src/idt.cpp
     src/isr.s
     src/idt_load.s
+    src/pmm.cpp
+    src/vmm.cpp
 )
 
 set_source_files_properties(
