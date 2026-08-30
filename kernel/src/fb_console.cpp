@@ -30,13 +30,13 @@ static inline void put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 
 static void draw_glyph(uint32_t px, uint32_t py, char c) {
     uint8_t uc = (uint8_t)c;
-    if (uc < 0x20 || uc > 0x7f) uc = '?';
-    const uint8_t *glyph = font8x8_basic[uc - 0x20];
+    if (uc < 0x20 || uc > 0x7F) uc = '?';
+    const uint8_t* glyph = font8x8_basic[uc - 0x20];
 
     for (uint32_t row = 0; row < GLYPH_H; row++) {
         uint8_t bits = glyph[row];
         for (uint32_t col = 0; col < GLYPH_W; col++) {
-            bool on = bits & (1 << (7 - col));
+            bool on = (bits >> col) & 1;
             put_pixel(px + col, py + row, on ? FG_COLOR : BG_COLOR);
         }
     }
