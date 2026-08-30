@@ -1,6 +1,24 @@
 #include "idt.h"
 #include "fb_console.h"
+#include "pic.h"
+#include "pit.h"
 
+extern "C" {
+    void irq0();  void irq1();  void irq2();  void irq3();
+    void irq4();  void irq5();  void irq6();  void irq7();
+    void irq8();  void irq9();  void irq10(); void irq11();
+    void irq12(); void irq13(); void irq14(); void irq15();
+}
+
+extern "C" void irq_handler(registers *regs) {
+    uint8_t irq = regs->int_no - 32;
+
+    if (irq == 0) {
+        pit_tick();
+    }
+
+    pic_send_eoi(irq);
+}
 struct IDTEntry {
     uint16_t offset_low;
     uint16_t selector;
@@ -108,6 +126,22 @@ void idt_init() {
     idt_set_gate(29, (uint64_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint64_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint64_t)isr31, 0x08, 0x8E);
+    idt_set_gate(32, (uint64_t)irq0,  0x08, 0x8E);
+    idt_set_gate(33, (uint64_t)irq1,  0x08, 0x8E);
+    idt_set_gate(34, (uint64_t)irq2,  0x08, 0x8E);
+    idt_set_gate(35, (uint64_t)irq3,  0x08, 0x8E);
+    idt_set_gate(36, (uint64_t)irq4,  0x08, 0x8E);
+    idt_set_gate(37, (uint64_t)irq5,  0x08, 0x8E);
+    idt_set_gate(38, (uint64_t)irq6,  0x08, 0x8E);
+    idt_set_gate(39, (uint64_t)irq7,  0x08, 0x8E);
+    idt_set_gate(40, (uint64_t)irq8,  0x08, 0x8E);
+    idt_set_gate(41, (uint64_t)irq9,  0x08, 0x8E);
+    idt_set_gate(42, (uint64_t)irq10, 0x08, 0x8E);
+    idt_set_gate(43, (uint64_t)irq11, 0x08, 0x8E);
+    idt_set_gate(44, (uint64_t)irq12, 0x08, 0x8E);
+    idt_set_gate(45, (uint64_t)irq13, 0x08, 0x8E);
+    idt_set_gate(46, (uint64_t)irq14, 0x08, 0x8E);
+    idt_set_gate(47, (uint64_t)irq15, 0x08, 0x8E);
 
     idt_load((uint64_t)&idt_ptr);
 }

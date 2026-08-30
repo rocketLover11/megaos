@@ -10,12 +10,16 @@ add_executable(kernel
     src/pmm.cpp
     src/vmm.cpp
     src/kheap.cpp
+    src/pic.cpp
+    src/pit.cpp
+    src/irq.s
 )
 
 set_source_files_properties(
     src/gdt_flush.s
     src/isr.s
     src/idt_load.s
+    src/irq.s
     PROPERTIES LANGUAGE ASM_NASM
 )
 

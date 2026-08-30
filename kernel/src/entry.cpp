@@ -7,6 +7,8 @@
 #include "pmm.h"
 #include "vmm.h"
 #include "kheap.h"
+#include "pic.h"
+#include "pit.h"
 
 extern "C" {
 
@@ -140,6 +142,15 @@ extern "C" void kmain() {
     vmm_init(hhdm_request.response->offset, memmap_request.response->entries, memmap_request.response->entry_count, kernel_address_request.response->physical_base, kernel_address_request.response->virtual_base, (uint64_t)&__kernel_end, (uint64_t)fb->address - hhdm_request.response->offset, fb->pitch * fb->height);
 
     kheap_init();
+
+    pic_remap();
+    pic_clear_mask(0);
+    pic_clear_mask(2);
+    pit_init(100);
+
+    asm volatile ("sti");
+
+    kprintf("[megakernel] Timer initialized, interrupts enabled.\n");
 
     hcf();
 }
