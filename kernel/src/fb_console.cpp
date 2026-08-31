@@ -1,5 +1,6 @@
 #include "fb_console.h"
 #include "font8x8.h"
+#include "spinlock.h"
 #include <stdarg.h>
 
 static uint8_t *fb_addr;
@@ -12,6 +13,8 @@ static const uint32_t LINE_HEIGHT = 12;
 static const uint32_t FG_COLOR = 0xffffffff;
 static const uint32_t BG_COLOR = 0xff000000;
 
+static Spinlock console_lock;
+
 void fb_console_init(void *address, uint64_t width, uint64_t height, uint64_t pitch, uint16_t bpp) {
     fb_addr = (uint8_t *)address;
     fb_width = width;
@@ -20,6 +23,7 @@ void fb_console_init(void *address, uint64_t width, uint64_t height, uint64_t pi
     fb_bpp = bpp;
     cursor_x = 0;
     cursor_y = 0;
+    spinlock_init(&console_lock);
 }
 
 static inline void put_pixel(uint32_t x, uint32_t y, uint32_t color) {
@@ -111,6 +115,8 @@ static void print_int(int64_t val) {
 }
 
 void kprintf(const char *fmt, ...) {
+    spinlock_acquire(&console_lock);
+
     va_list args;
     va_start(args, fmt);
 
@@ -140,4 +146,5 @@ void kprintf(const char *fmt, ...) {
     }
 
     va_end(args);
+    spinlock_release(&console_lock);
 }

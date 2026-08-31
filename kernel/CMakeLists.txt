@@ -13,6 +13,11 @@ add_executable(kernel
     src/pic.cpp
     src/pit.cpp
     src/irq.s
+    src/tss.cpp
+    src/tss_flush.s
+    src/thread.cpp
+    src/context_switch.s
+    src/scheduler.cpp
 )
 
 set_source_files_properties(
@@ -20,6 +25,8 @@ set_source_files_properties(
     src/isr.s
     src/idt_load.s
     src/irq.s
+    src/tss_flush.s
+    src/context_switch.s
     PROPERTIES LANGUAGE ASM_NASM
 )
 

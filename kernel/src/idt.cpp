@@ -2,6 +2,7 @@
 #include "fb_console.h"
 #include "pic.h"
 #include "pit.h"
+#include "scheduler.h"
 
 extern "C" {
     void irq0();  void irq1();  void irq2();  void irq3();
@@ -15,6 +16,10 @@ extern "C" void irq_handler(registers *regs) {
 
     if (irq == 0) {
         pit_tick();
+        pic_send_eoi(irq);
+
+        schedule();
+        return;
     }
 
     pic_send_eoi(irq);

@@ -5,8 +5,6 @@ enable_language(ASM_NASM)
 
 add_subdirectory(kernel)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(ISO_ROOT ${CMAKE_BINARY_DIR}/iso_root)
 set(LIMINE_DIR ${CMAKE_SOURCE_DIR}/limine)
 

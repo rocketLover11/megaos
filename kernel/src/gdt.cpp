@@ -9,12 +9,17 @@ struct GDTEntry {
     uint8_t base_high;
 } __attribute__((packed));
 
+struct TSSDescriptorHigh {
+    uint32_t base_upper;
+    uint32_t reserved;
+} __attribute__((packed));
+
 struct GDTPointer {
     uint16_t limit;
     uint64_t base;
 } __attribute__((packed));
 
-static GDTEntry gdt[5];
+static GDTEntry gdt[7];
 static GDTPointer gdt_ptr;
 
 extern "C" void gdt_flush(uint64_t gdt_ptr_addr);
@@ -26,6 +31,14 @@ static void gdt_set_entry(int idx, uint32_t base, uint32_t limit, uint8_t access
     gdt[idx].limit_low = limit & 0xffff;
     gdt[idx].granularity = ((limit >> 16) & 0x0f) | (gran & 0xf0);
     gdt[idx].access = access;
+}
+
+void gdt_set_tss_descriptor(uint64_t base, uint32_t limit) {
+    gdt_set_entry(5, (uint32_t)(base & 0xffffffff), limit, 0x89, 0x00);
+
+    TSSDescriptorHigh *high = (TSSDescriptorHigh *)&gdt[6];
+    high->base_upper = (uint32_t)(base >> 32);
+    high->reserved = 0;
 }
 
 void gdt_init() {

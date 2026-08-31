@@ -9,6 +9,9 @@
 #include "kheap.h"
 #include "pic.h"
 #include "pit.h"
+#include "tss.h"
+#include "thread.h"
+#include "scheduler.h"
 
 extern "C" {
 
@@ -111,6 +114,20 @@ static void hcf() {
     }
 }
 
+static void thread_a_entry() {
+    for (;;) {
+        kprintf("[Thread A] Hello!\n");
+        for (volatile int i = 0; i < 5000000; i++);
+    }
+}
+
+static void thread_b_entry() {
+    for (;;) {
+        kprintf("[Thread B] Hi!\n");
+        for (volatile int i = 0; i < 5000000; i++);
+    }
+}
+
 extern "C" void kmain() {
     if (framebuffer_request.response == nullptr ||
         framebuffer_request.response->framebuffer_count < 1) {
@@ -143,6 +160,16 @@ extern "C" void kmain() {
 
     kheap_init();
 
+    void *kernel_stack = kmalloc(16 * 1024);
+    uint64_t kernel_stack_top = (uint64_t)kernel_stack + 16 * 1024;
+
+    tss_init(kernel_stack_top);
+    kprintf("[megakernel] TSS loaded.\n");
+
+    scheduler_init();
+    scheduler_add_thread(thread_create(thread_a_entry, "A"));
+    scheduler_add_thread(thread_create(thread_b_entry, "B"));
+
     pic_remap();
     pic_clear_mask(0);
     pic_clear_mask(2);
@@ -151,6 +178,8 @@ extern "C" void kmain() {
     asm volatile ("sti");
 
     kprintf("[megakernel] Timer initialized, interrupts enabled.\n");
+
+    schedule();
 
     hcf();
 }
