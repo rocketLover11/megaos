@@ -114,20 +114,6 @@ static void hcf() {
     }
 }
 
-static void thread_a_entry() {
-    for (;;) {
-        kprintf("[Thread A] Hello!\n");
-        for (volatile int i = 0; i < 5000000; i++);
-    }
-}
-
-static void thread_b_entry() {
-    for (;;) {
-        kprintf("[Thread B] Hi!\n");
-        for (volatile int i = 0; i < 5000000; i++);
-    }
-}
-
 extern "C" void kmain() {
     if (framebuffer_request.response == nullptr ||
         framebuffer_request.response->framebuffer_count < 1) {
@@ -167,8 +153,6 @@ extern "C" void kmain() {
     kprintf("[megakernel] TSS loaded.\n");
 
     scheduler_init();
-    scheduler_add_thread(thread_create(thread_a_entry, "A"));
-    scheduler_add_thread(thread_create(thread_b_entry, "B"));
 
     pic_remap();
     pic_clear_mask(0);
